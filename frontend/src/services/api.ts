@@ -23,9 +23,11 @@ export async function fetchExpenses(): Promise<Expense[]> {
 export async function getExpenses(
   year: number,
   month: number,
+  signal?: AbortSignal,
 ): Promise<Expense[]> {
   const response = await fetch(
     `${API_BASE_URL}/expenses?year=${year}&month=${month}`,
+    { signal },
   );
   if (!response.ok) {
     throw new Error("Failed to fetch expenses");

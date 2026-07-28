@@ -35,10 +35,19 @@ export function useExpenseForm({ initialData, onSubmit }: UseExpenseFormProps) {
 
     if (!formData.amount || Number(formData.amount) <= 0) {
       newErrors.amount = "Amount must be greater than 0";
+    } else if (!/^\d{1,8}(\.\d{1,2})?$/.test(formData.amount.trim())) {
+      newErrors.amount =
+        "Amount must have up to 2 decimal places and be at most 99999999.99";
     }
 
-    if (!formData.description.trim()) {
+    const trimmedDescription = formData.description.trim();
+    if (!trimmedDescription) {
       newErrors.description = "Description is required";
+    } else {
+      const wordCount = trimmedDescription.split(/\s+/).length;
+      if (wordCount > 500) {
+        newErrors.description = "Description must be at most 500 words";
+      }
     }
 
     if (!formData.category) {
