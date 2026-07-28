@@ -2,7 +2,7 @@
  * Reusable TextField component
  */
 
-import React from "react";
+import React, { useId } from "react";
 import { COLORS } from "../constants/colors";
 
 interface TextFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -15,8 +15,12 @@ export function TextField({
   label,
   error,
   fullWidth = false,
+  id,
   ...props
 }: TextFieldProps) {
+  const generatedId = useId();
+  const inputId = id ?? generatedId;
+  const errorId = error ? `${inputId}-error` : undefined;
   const containerStyle: React.CSSProperties = {
     display: "flex",
     flexDirection: "column",
@@ -49,9 +53,23 @@ export function TextField({
 
   return (
     <div style={containerStyle}>
-      {label && <label style={labelStyle}>{label}</label>}
-      <input style={inputStyle} {...props} />
-      {error && <span style={errorStyle}>{error}</span>}
+      {label && (
+        <label htmlFor={inputId} style={labelStyle}>
+          {label}
+        </label>
+      )}
+      <input
+        id={inputId}
+        style={inputStyle}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={errorId}
+        {...props}
+      />
+      {error && (
+        <span id={errorId} style={errorStyle} role="alert">
+          {error}
+        </span>
+      )}
     </div>
   );
 }

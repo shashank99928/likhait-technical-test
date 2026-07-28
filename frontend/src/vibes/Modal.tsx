@@ -87,14 +87,28 @@ export function Modal({
     lineHeight: 1,
   };
 
+  const titleId = title ? "modal-title" : undefined;
+
   return (
     <div style={overlayStyle} onClick={onClose}>
-      <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
+      <div
+        style={modalStyle}
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+      >
         {title && (
           <div style={headerStyle}>
-            <h2 style={titleStyle}>{title}</h2>
-            <button style={closeButtonStyle} onClick={onClose}>
-              ×
+            <h2 id={titleId} style={titleStyle}>
+              {title}
+            </h2>
+            <button
+              style={closeButtonStyle}
+              onClick={onClose}
+              aria-label="Close dialog"
+            >
+              <span aria-hidden="true">×</span>
             </button>
           </div>
         )}

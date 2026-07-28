@@ -10,6 +10,7 @@ import { COLORS } from "../constants/colors";
 import { Button, Modal, Pagination } from "../vibes";
 import { ExpenseForm } from "./ExpenseForm.tsx";
 import { deleteExpense, updateExpense } from "../services/api";
+import { useMutation } from "../hooks/useMutation";
 
 interface CalendarExpenseTableProps {
   expenses: Expense[];
@@ -43,10 +44,16 @@ export function CalendarExpenseTable({
     setIsDeleteModalOpen(true);
   };
 
+  const { mutate: removeExpense, isLoading: isDeleting } =
+    useMutation(deleteExpense);
+  const { mutate: editExpense } = useMutation(
+    (id: number, data: Partial<ExpenseFormData>) => updateExpense(id, data),
+  );
+
   const confirmDelete = async () => {
     if (!deletingExpense) return;
     try {
-      await deleteExpense(deletingExpense.id);
+      await removeExpense(deletingExpense.id);
       setIsDeleteModalOpen(false);
       setDeletingExpense(null);
       onExpenseUpdated();
@@ -58,15 +65,10 @@ export function CalendarExpenseTable({
 
   const handleUpdate = async (data: ExpenseFormData) => {
     if (!editingExpense) return;
-    try {
-      await updateExpense(editingExpense.id, data);
-      setIsEditModalOpen(false);
-      setEditingExpense(null);
-      onExpenseUpdated();
-    } catch (error) {
-      console.error("Failed to update expense:", error);
-      throw error;
-    }
+    await editExpense(editingExpense.id, data);
+    setIsEditModalOpen(false);
+    setEditingExpense(null);
+    onExpenseUpdated();
   };
 
   const tableStyle: React.CSSProperties = {
@@ -119,14 +121,24 @@ export function CalendarExpenseTable({
 
   return (
     <>
-      <table style={tableStyle}>
+      <table style={tableStyle} aria-label="Expenses">
         <thead style={theadStyle}>
           <tr>
-            <th style={thStyle}>Date</th>
-            <th style={thStyle}>Description</th>
-            <th style={thStyle}>Category</th>
-            <th style={thStyle}>Amount</th>
-            <th style={{ ...thStyle, textAlign: "center" }}>Actions</th>
+            <th scope="col" style={thStyle}>
+              Date
+            </th>
+            <th scope="col" style={thStyle}>
+              Description
+            </th>
+            <th scope="col" style={thStyle}>
+              Category
+            </th>
+            <th scope="col" style={thStyle}>
+              Amount
+            </th>
+            <th scope="col" style={{ ...thStyle, textAlign: "center" }}>
+              Actions
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -155,6 +167,7 @@ export function CalendarExpenseTable({
                     variant="secondary"
                     size="small"
                     onClick={() => handleEdit(expense)}
+                    aria-label={`Edit ${expense.description}`}
                   >
                     Edit
                   </Button>
@@ -162,6 +175,7 @@ export function CalendarExpenseTable({
                     variant="danger"
                     size="small"
                     onClick={() => handleDelete(expense)}
+                    aria-label={`Delete ${expense.description}`}
                   >
                     Delete
                   </Button>
@@ -189,7 +203,7 @@ export function CalendarExpenseTable({
         {editingExpense && (
           <ExpenseForm
             initialData={{
-              amount: editingExpense.amount.toString(),
+              amount: editingExpense.amount,
               description: editingExpense.description,
               category: editingExpense.category,
               date: formatDate(new Date(editingExpense.date)),
@@ -231,6 +245,7 @@ export function CalendarExpenseTable({
           >
             <Button
               variant="secondary"
+              disabled={isDeleting}
               onClick={() => {
                 setIsDeleteModalOpen(false);
                 setDeletingExpense(null);
@@ -238,8 +253,12 @@ export function CalendarExpenseTable({
             >
               Cancel
             </Button>
-            <Button variant="danger" onClick={confirmDelete}>
-              Delete
+            <Button
+              variant="danger"
+              disabled={isDeleting}
+              onClick={confirmDelete}
+            >
+              {isDeleting ? "Deleting..." : "Delete"}
             </Button>
           </div>
         </div>

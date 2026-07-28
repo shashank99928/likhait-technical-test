@@ -52,10 +52,13 @@ export function YearNavigation({
           e.currentTarget.style.background = "white";
           e.currentTarget.style.borderColor = COLORS.secondary.s04;
         }}
+        aria-label="Previous year"
       >
-        ←
+        <span aria-hidden="true">←</span>
       </button>
-      <div style={yearStyle}>{currentYear}</div>
+      <div style={yearStyle} aria-live="polite">
+        {currentYear}
+      </div>
       <button
         style={buttonStyle}
         onClick={() => onYearChange(currentYear + 1)}
@@ -67,8 +70,9 @@ export function YearNavigation({
           e.currentTarget.style.background = "white";
           e.currentTarget.style.borderColor = COLORS.secondary.s04;
         }}
+        aria-label="Next year"
       >
-        →
+        <span aria-hidden="true">→</span>
       </button>
     </div>
   );

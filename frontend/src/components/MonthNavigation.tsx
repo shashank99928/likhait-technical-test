@@ -94,7 +94,7 @@ export function MonthNavigation({
   });
 
   return (
-    <div style={wrapperStyle}>
+    <div style={wrapperStyle} role="group" aria-label="Month selector">
       <button
         style={navigationButtonStyle}
         onClick={handlePreviousMonth}
@@ -104,9 +104,9 @@ export function MonthNavigation({
         onMouseLeave={(e) => {
           e.currentTarget.style.background = COLORS.primary.p05;
         }}
-        title="Previous month"
+        aria-label="Previous month"
       >
-        ←
+        <span aria-hidden="true">←</span>
       </button>
       <div style={containerStyle}>
         {MONTHS.map((month) => (
@@ -124,6 +124,7 @@ export function MonthNavigation({
                 e.currentTarget.style.background = "white";
               }
             }}
+            aria-current={currentMonth === month.value ? "true" : undefined}
           >
             {month.label}
           </button>
@@ -138,9 +139,9 @@ export function MonthNavigation({
         onMouseLeave={(e) => {
           e.currentTarget.style.background = COLORS.primary.p05;
         }}
-        title="Next month"
+        aria-label="Next month"
       >
-        →
+        <span aria-hidden="true">→</span>
       </button>
     </div>
   );

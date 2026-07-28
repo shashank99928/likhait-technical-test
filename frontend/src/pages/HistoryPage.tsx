@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { getExpenses, createExpense } from "../services/api";
-import { Expense, ExpenseFormData } from "../types";
+import { ExpenseFormData } from "../types";
 import YearNavigation from "../components/YearNavigation";
 import { MonthNavigation } from "../components/MonthNavigation";
 import CategoryBreakdown from "../components/CategoryBreakdown";
@@ -8,10 +8,10 @@ import { CalendarExpenseTable } from "../components/CalendarExpenseTable";
 import { ExpenseForm } from "../components/ExpenseForm";
 import { Modal, Button } from "../vibes";
 import { COLORS } from "../constants/colors";
+import { useFetch } from "../hooks/useFetch";
+import { useMutation } from "../hooks/useMutation";
 
 const HistoryPage: React.FC = () => {
-  const [expenses, setExpenses] = useState<Expense[]>([]);
-  const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Get year and month from URL params, default to current date if not provided
@@ -45,21 +45,17 @@ const HistoryPage: React.FC = () => {
     updateURL(selectedYear, selectedMonth);
   }, []);
 
-  useEffect(() => {
-    fetchExpenses();
-  }, [selectedYear, selectedMonth]);
+  const {
+    data: expensesData,
+    isLoading: isLoadingExpenses,
+    refetch: refetchExpenses,
+  } = useFetch(
+    (signal) => getExpenses(selectedYear, selectedMonth, signal),
+    [selectedYear, selectedMonth],
+  );
+  const expenses = expensesData ?? [];
 
-  const fetchExpenses = async () => {
-    try {
-      setLoading(true);
-      const data = await getExpenses(selectedYear, selectedMonth);
-      setExpenses(data);
-    } catch (error) {
-      console.error("Error fetching expenses:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { mutate: addExpense } = useMutation(createExpense);
 
   const handleYearChange = (year: number) => {
     setSelectedYear(year);
@@ -72,14 +68,9 @@ const HistoryPage: React.FC = () => {
   };
 
   const handleAddExpense = async (data: ExpenseFormData) => {
-    try {
-      await createExpense(data);
-      setIsModalOpen(false);
-      fetchExpenses();
-    } catch (error) {
-      console.error("Error creating expense:", error);
-      throw error;
-    }
+    await addExpense(data);
+    setIsModalOpen(false);
+    refetchExpenses();
   };
 
   // Calculate category breakdown
@@ -160,8 +151,10 @@ const HistoryPage: React.FC = () => {
       />
 
       <div>
-        {loading ? (
-          <div style={loadingStyle}>Loading...</div>
+        {isLoadingExpenses ? (
+          <div style={loadingStyle} role="status" aria-live="polite">
+            Loading...
+          </div>
         ) : (
           <>
             <CategoryBreakdown
@@ -172,7 +165,7 @@ const HistoryPage: React.FC = () => {
             <div style={{ marginTop: "32px" }}>
               <CalendarExpenseTable
                 expenses={expenses}
-                onExpenseUpdated={fetchExpenses}
+                onExpenseUpdated={refetchExpenses}
               />
             </div>
           </>
