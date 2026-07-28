@@ -121,14 +121,24 @@ export function CalendarExpenseTable({
 
   return (
     <>
-      <table style={tableStyle}>
+      <table style={tableStyle} aria-label="Expenses">
         <thead style={theadStyle}>
           <tr>
-            <th style={thStyle}>Date</th>
-            <th style={thStyle}>Description</th>
-            <th style={thStyle}>Category</th>
-            <th style={thStyle}>Amount</th>
-            <th style={{ ...thStyle, textAlign: "center" }}>Actions</th>
+            <th scope="col" style={thStyle}>
+              Date
+            </th>
+            <th scope="col" style={thStyle}>
+              Description
+            </th>
+            <th scope="col" style={thStyle}>
+              Category
+            </th>
+            <th scope="col" style={thStyle}>
+              Amount
+            </th>
+            <th scope="col" style={{ ...thStyle, textAlign: "center" }}>
+              Actions
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -157,6 +167,7 @@ export function CalendarExpenseTable({
                     variant="secondary"
                     size="small"
                     onClick={() => handleEdit(expense)}
+                    aria-label={`Edit ${expense.description}`}
                   >
                     Edit
                   </Button>
@@ -164,6 +175,7 @@ export function CalendarExpenseTable({
                     variant="danger"
                     size="small"
                     onClick={() => handleDelete(expense)}
+                    aria-label={`Delete ${expense.description}`}
                   >
                     Delete
                   </Button>

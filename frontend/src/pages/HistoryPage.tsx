@@ -152,7 +152,9 @@ const HistoryPage: React.FC = () => {
 
       <div>
         {isLoadingExpenses ? (
-          <div style={loadingStyle}>Loading...</div>
+          <div style={loadingStyle} role="status" aria-live="polite">
+            Loading...
+          </div>
         ) : (
           <>
             <CategoryBreakdown

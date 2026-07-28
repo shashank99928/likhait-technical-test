@@ -138,7 +138,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         </button>
       </div>
 
-      <nav style={navStyle}>
+      <nav style={navStyle} aria-label="Main navigation">
         <button
           style={navItemStyle}
           onClick={() => onNavigate?.("history")}
@@ -152,6 +152,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               e.currentTarget.style.background = "transparent";
             }
           }}
+          aria-current={currentPage === "history" ? "page" : undefined}
         >
           <svg
             width="24"

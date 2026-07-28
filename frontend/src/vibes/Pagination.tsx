@@ -36,16 +36,17 @@ export function Pagination({
   }
 
   return (
-    <div style={containerStyle}>
+    <nav style={containerStyle} aria-label="Pagination">
       <Button
         variant="secondary"
         size="small"
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
+        aria-label="Go to previous page"
       >
         Previous
       </Button>
-      <span style={pageInfoStyle}>
+      <span style={pageInfoStyle} aria-live="polite">
         Page {currentPage} of {totalPages}
       </span>
       <Button
@@ -53,9 +54,10 @@ export function Pagination({
         size="small"
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
+        aria-label="Go to next page"
       >
         Next
       </Button>
-    </div>
+    </nav>
   );
 }
