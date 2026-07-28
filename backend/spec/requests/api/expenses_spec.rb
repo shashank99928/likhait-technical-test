@@ -16,12 +16,39 @@ RSpec.describe "Api::Expenses", type: :request do
       expect(json.length).to eq(2)
     end
 
-    it "returns expenses in descending order by created_at" do
+    it "returns expenses in descending order by date, breaking ties by id" do
       get "/api/expenses"
 
       json = JSON.parse(response.body)
       expect(json.first["id"]).to eq(expense2.id)
       expect(json.last["id"]).to eq(expense1.id)
+    end
+
+    # Regression guard for BUG-001: both records above share the same date, so a
+    # created_at-based order would coincidentally look correct. This flips created_at
+    # and date relative to each other to prove sorting truly follows date.
+    it "orders by expense date, not by when the record was created" do
+      earlier_created_later_dated = Expense.create!(
+        description: "Created first, dated 10 days from now",
+        amount: 75.00,
+        category: food_category,
+        date: Date.today + 10
+      )
+
+      later_created_earlier_dated = Expense.create!(
+        description: "Created second, dated 10 days ago",
+        amount: 25.00,
+        category: transport_category,
+        date: Date.today - 10
+      )
+
+      get "/api/expenses"
+
+      json = JSON.parse(response.body)
+      ids = json.map { |expense| expense["id"] }
+
+      expect(ids.index(earlier_created_later_dated.id))
+        .to be < ids.index(later_created_earlier_dated.id)
     end
   end
 
