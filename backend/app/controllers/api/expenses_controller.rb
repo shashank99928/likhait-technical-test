@@ -1,5 +1,7 @@
 class Api::ExpensesController < ApplicationController
   def index
+    # Order by expense date, not created_at, so backdated/future entries sort correctly (BUG-001).
+    # id: :desc breaks ties for same-day expenses, newest inserted first.
     expenses = Expense.includes(:category).order(date: :desc, id: :desc)
 
     if params[:year].present? && params[:month].present?
